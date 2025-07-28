@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>People Counter Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>People Counter Dashboard</h1>
+            <p>Real-time monitoring of people movement across devices</p>
+        </header>
+
+        <div class="controls">
+            <label for="deviceFilter">Filter by Device:</label>
+            <select id="deviceFilter">
+                <option value="all">All Devices</option>
+                <option value="Buttout">Buttout</option>
+                <option value="Buttin">Buttin</option>
+                <option value="Henk">Henk</option>
+                <option value="Kamerotski">Kamerotski</option>
+            </select>
+            
+            <label for="timeRange">Time Range:</label>
+            <select id="timeRange">
+                <option value="24h">Last 24 Hours</option>
+                <option value="7d">Last 7 Days</option>
+                <option value="30d">Last 30 Days</option>
+                <option value="all">All Time</option>
+            </select>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Total Inside</h3>
+                <div class="stat-value" id="totalInside">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Total Outside</h3>
+                <div class="stat-value" id="totalOutside">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Net Movement</h3>
+                <div class="stat-value" id="netMovement">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>Active Devices</h3>
+                <div class="stat-value" id="activeDevices">0</div>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h3>Movement Over Time</h3>
+                <canvas id="timelineChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Inside vs Outside Distribution</h3>
+                <canvas id="distributionChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Device Activity</h3>
+                <canvas id="deviceChart"></canvas>
+            </div>
+            
+            <div class="chart-container">
+                <h3>Delta Changes</h3>
+                <canvas id="deltaChart"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <h3>Recent Activity</h3>
+            <table id="activityTable">
+                <thead>
+                    <tr>
+                        <th>Device</th>
+                        <th>Timestamp</th>
+                        <th>Inside</th>
+                        <th>Outside</th>
+                        <th>Delta</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody id="activityTableBody">
+                </tbody>
+            </table>
+        </div>
+
+        <footer>
+            <p>Last updated: <span id="lastUpdated">Never</span></p>
+        </footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
