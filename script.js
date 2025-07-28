@@ -4,7 +4,8 @@ class PeopleCounterDashboard {
         this.filteredData = [];
         this.charts = {};
 
-        this.apiUrl = atob('aHR0cHM6Ly9hZmYucmV5dGVjaC5iZS9ncm91cGVk');
+        const endpoint = atob('aHR0cHM6Ly9hZmYucmV5dGVjaC5iZS9ncm91cGVk');
+        this.apiUrl = 'https://corsproxy.io/?' + endpoint;
         this.init();
     }
 
