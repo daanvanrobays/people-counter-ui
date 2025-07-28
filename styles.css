@@ -7,10 +7,29 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background-color: #245d50;
+    background-image: url('back_25_d.png');
+    background-size: cover;
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
     color: #eee7d7;
     line-height: 1.6;
     margin: 0;
     min-height: 100vh;
+    position: relative;
+}
+
+/* Add overlay to ensure text readability over the background image */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(36, 93, 80, 0.85);
+    z-index: -1;
+    pointer-events: none;
 }
 
 .container {
