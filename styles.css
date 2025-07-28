@@ -6,9 +6,11 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: #f5f7fa;
-    color: #333;
+    background-color: #245d50;
+    color: #eee7d7;
     line-height: 1.6;
+    margin: 0;
+    min-height: 100vh;
 }
 
 .container {
@@ -20,52 +22,172 @@ body {
 header {
     text-align: center;
     margin-bottom: 30px;
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: rgba(238, 231, 215, 0.1);
+    padding: 25px 20px;
+    border-radius: 0;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    border: 1px solid rgba(243, 179, 35, 0.3);
 }
 
 header h1 {
-    color: #2c3e50;
-    font-size: 2.5rem;
-    margin-bottom: 10px;
+    color: #f3b323;
+    font-size: 2rem;
+    margin-bottom: 5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
 }
 
 header p {
-    color: #7f8c8d;
-    font-size: 1.1rem;
+    color: #eee7d7;
+    font-size: 1.2rem;
 }
 
 .controls {
-    display: flex;
-    gap: 20px;
     margin-bottom: 30px;
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-    flex-wrap: wrap;
+    background: rgba(238, 231, 215, 0.1);
+    padding: 30px;
+    border-radius: 0;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.2);
+    border-left: 4px solid #f3b323;
 }
 
-.controls label {
+.filter-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-bottom: 20px;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.filter-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.filter-icon {
+    font-size: 1.2rem;
+    filter: grayscale(1) brightness(1.2);
+}
+
+.filter-title {
     font-weight: 600;
-    color: #2c3e50;
+    color: #f3b323;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
-.controls select {
-    padding: 8px 12px;
-    border: 2px solid #ddd;
-    border-radius: 5px;
+.filter-select,
+.controls input[type="date"],
+.controls input[type="time"] {
+    padding: 14px 16px;
+    border: 2px solid rgba(243, 179, 35, 0.3);
+    border-radius: 6px;
     font-size: 14px;
-    background: white;
+    background: #eee7d7;
+    color: #245d50;
     cursor: pointer;
-    transition: border-color 0.3s;
+    transition: all 0.3s ease;
+    font-weight: 500;
+    width: 100%;
 }
 
-.controls select:focus {
+.filter-select:focus,
+.controls input[type="date"]:focus,
+.controls input[type="time"]:focus {
     outline: none;
-    border-color: #3498db;
+    border-color: #f3b323;
+    box-shadow: 0 0 0 3px rgba(243, 179, 35, 0.15);
+    transform: translateY(-1px);
+}
+
+.filter-select:hover,
+.controls input[type="date"]:hover,
+.controls input[type="time"]:hover {
+    border-color: rgba(243, 179, 35, 0.5);
+}
+
+/* Optgroup styling */
+.filter-select optgroup {
+    font-weight: bold;
+    color: #245d50;
+    background: rgba(243, 179, 35, 0.1);
+}
+
+.filter-select option {
+    padding: 8px;
+    font-weight: normal;
+}
+
+/* Custom range sections */
+.custom-range-section {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(243, 179, 35, 0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(243, 179, 35, 0.2);
+}
+
+.range-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.range-title {
+    font-weight: 600;
+    color: #f3b323;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.date-inputs,
+.time-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.input-group label {
+    font-weight: 600;
+    color: #eee7d7;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    .filter-section {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .date-inputs,
+    .time-inputs {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .controls {
+        padding: 20px;
+    }
 }
 
 .stats-grid {
@@ -76,30 +198,35 @@ header p {
 }
 
 .stat-card {
-    background: white;
+    background: rgba(238, 231, 215, 0.1);
     padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     text-align: center;
-    transition: transform 0.3s;
+    transition: all 0.3s ease;
+    border-left: 4px solid #f3b323;
+    border-bottom: 1px solid rgba(243, 179, 35, 0.2);
 }
 
 .stat-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-3px);
+    border-left-color: #f3b323;
+    box-shadow: 0 6px 25px rgba(0,0,0,0.3);
 }
 
 .stat-card h3 {
-    color: #7f8c8d;
-    font-size: 1rem;
+    color: #f3b323;
+    font-size: 0.9rem;
     margin-bottom: 15px;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
+    font-weight: 600;
 }
 
 .stat-value {
     font-size: 2.5rem;
-    font-weight: bold;
-    color: #2c3e50;
+    font-weight: 700;
+    color: #eee7d7;
 }
 
 .charts-grid {
@@ -110,17 +237,22 @@ header p {
 }
 
 .chart-container {
-    background: white;
+    background: rgba(238, 231, 215, 0.1);
     padding: 25px;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-left: 4px solid #f3b323;
+    border-bottom: 1px solid rgba(243, 179, 35, 0.2);
 }
 
 .chart-container h3 {
-    color: #2c3e50;
+    color: #f3b323;
     margin-bottom: 20px;
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .chart-container canvas {
@@ -128,20 +260,24 @@ header p {
 }
 
 .data-table {
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    background: rgba(238, 231, 215, 0.1);
+    border-radius: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
     overflow: hidden;
     margin-bottom: 30px;
+    border-left: 4px solid #f3b323;
+    border-bottom: 1px solid rgba(243, 179, 35, 0.2);
 }
 
 .data-table h3 {
-    color: #2c3e50;
+    color: #245d50;
     padding: 20px 25px;
-    background: #f8f9fa;
+    background: #f3b323;
     margin: 0;
-    font-size: 1.2rem;
-    border-bottom: 1px solid #dee2e6;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 600;
 }
 
 .data-table table {
@@ -153,20 +289,25 @@ header p {
 .data-table td {
     padding: 15px;
     text-align: left;
-    border-bottom: 1px solid #dee2e6;
+    border-bottom: 1px solid rgba(243, 179, 35, 0.1);
 }
 
 .data-table th {
-    background: #f8f9fa;
+    background: rgba(243, 179, 35, 0.1);
     font-weight: 600;
-    color: #495057;
+    color: #eee7d7;
     text-transform: uppercase;
-    font-size: 0.85rem;
-    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+}
+
+.data-table td {
+    color: #eee7d7;
+    font-weight: 400;
 }
 
 .data-table tbody tr:hover {
-    background: #f8f9fa;
+    background: rgba(243, 179, 35, 0.08);
 }
 
 .data-table tbody tr:last-child td {
@@ -175,16 +316,19 @@ header p {
 
 footer {
     text-align: center;
-    padding: 20px;
-    color: #7f8c8d;
-    background: white;
-    border-radius: 10px;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    padding: 25px;
+    color: #eee7d7;
+    background: rgba(238, 231, 215, 0.1);
+    border-radius: 0;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    border-left: 4px solid #f3b323;
+    border-bottom: 1px solid rgba(243, 179, 35, 0.2);
+    margin-top: 20px;
 }
 
 #lastUpdated {
     font-weight: 600;
-    color: #2c3e50;
+    color: #f3b323;
 }
 
 @media (max-width: 768px) {
@@ -228,11 +372,11 @@ footer {
 }
 
 .error {
-    background: #fff5f5;
-    color: #e53e3e;
+    background: rgba(229, 62, 62, 0.1);
+    color: #f3b323;
     padding: 20px;
     border-radius: 10px;
-    border: 1px solid #fed7d7;
+    border: 1px solid rgba(243, 179, 35, 0.5);
     margin: 20px 0;
     text-align: center;
 }

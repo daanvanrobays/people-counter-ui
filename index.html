@@ -10,40 +10,106 @@
 <body>
     <div class="container">
         <header>
-            <h1>People Counter Dashboard</h1>
-            <p>Real-time monitoring of people movement across devices</p>
+            <h1>AFF Dashboard</h1>
         </header>
 
         <div class="controls">
-            <label for="deviceFilter">Filter by Device:</label>
-            <select id="deviceFilter">
-                <option value="all">All Devices</option>
-                <option value="Buttout">Buttout</option>
-                <option value="Buttin">Buttin</option>
-                <option value="Henk">Henk</option>
-                <option value="Kamerotski">Kamerotski</option>
-            </select>
+            <div class="filter-section">
+                <div class="filter-group">
+                    <div class="filter-header">
+                        <span class="filter-icon">📊</span>
+                        <span class="filter-title">Data Source</span>
+                    </div>
+                    <select id="deviceFilter" class="filter-select">
+                        <option value="all">All Devices</option>
+                        <option value="Henk">Henk (OUT)</option>
+                        <option value="Kamerotski">Kamerotski (IN)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">
+                        <span class="filter-icon">📅</span>
+                        <span class="filter-title">Festival Period</span>
+                    </div>
+                    <select id="timeRange" class="filter-select">
+                        <optgroup label="AFF 2024">
+                            <option value="2024-full">Full Festival (Aug 2-3)</option>
+                            <option value="2024-friday">Friday Only (Aug 2)</option>
+                            <option value="2024-saturday">Saturday Only (Aug 3)</option>
+                        </optgroup>
+                        <optgroup label="AFF 2025">
+                            <option value="2025-full">Full Festival (Aug 1-2)</option>
+                            <option value="2025-friday">Friday Only (Aug 1)</option>
+                            <option value="2025-saturday">Saturday Only (Aug 2)</option>
+                        </optgroup>
+                        <optgroup label="Custom">
+                            <option value="custom">Custom Date Range</option>
+                            <option value="all">All Available Data</option>
+                        </optgroup>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <div class="filter-header">
+                        <span class="filter-icon">🕒</span>
+                        <span class="filter-title">Active Hours</span>
+                    </div>
+                    <select id="timeFilter" class="filter-select">
+                        <option value="all-hours">All Hours</option>
+                        <option value="friday-hours">Friday Hours (18:00-02:00)</option>
+                        <option value="saturday-hours">Saturday Hours (13:00-02:00)</option>
+                        <option value="custom-hours">Custom Time Range</option>
+                    </select>
+                </div>
+            </div>
             
-            <label for="timeRange">Time Range:</label>
-            <select id="timeRange">
-                <option value="24h">Last 24 Hours</option>
-                <option value="7d">Last 7 Days</option>
-                <option value="30d">Last 30 Days</option>
-                <option value="all">All Time</option>
-            </select>
+            <div id="customDateRange" class="custom-range-section" style="display: none;">
+                <div class="range-header">
+                    <span class="filter-icon">📅</span>
+                    <span class="range-title">Custom Date Range</span>
+                </div>
+                <div class="date-inputs">
+                    <div class="input-group">
+                        <label for="startDate">From</label>
+                        <input type="date" id="startDate" value="2024-08-02">
+                    </div>
+                    <div class="input-group">
+                        <label for="endDate">To</label>
+                        <input type="date" id="endDate" value="2024-08-03">
+                    </div>
+                </div>
+            </div>
+            
+            <div id="customTimeRange" class="custom-range-section" style="display: none;">
+                <div class="range-header">
+                    <span class="filter-icon">🕒</span>
+                    <span class="range-title">Custom Time Range</span>
+                </div>
+                <div class="time-inputs">
+                    <div class="input-group">
+                        <label for="startHour">From</label>
+                        <input type="time" id="startHour" value="14:00">
+                    </div>
+                    <div class="input-group">
+                        <label for="endHour">To</label>
+                        <input type="time" id="endHour" value="22:00">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>Total Inside</h3>
+                <h3>Total IN (Kamerotski)</h3>
                 <div class="stat-value" id="totalInside">0</div>
             </div>
             <div class="stat-card">
-                <h3>Total Outside</h3>
+                <h3>Total OUT (Henk)</h3>
                 <div class="stat-value" id="totalOutside">0</div>
             </div>
             <div class="stat-card">
-                <h3>Net Movement</h3>
+                <h3>Net Difference</h3>
                 <div class="stat-value" id="netMovement">0</div>
             </div>
             <div class="stat-card">
