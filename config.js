@@ -83,7 +83,6 @@ const CONFIG = {
     // Data Processing
     DATA: {
         BASE_OFFSET: 0,                 // Base people count offset
-        CUTOFF_DATE: '2024-08-03',       // Date after which to apply delta calculations
         TIMEZONE: 'Europe/Brussels'
     },
 

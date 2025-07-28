@@ -202,14 +202,6 @@ class PeopleCounterDashboard {
                     endDate: now.toISOString().split('T')[0],
                     allDay: true
                 };
-            case 'last-week':
-                const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-                return {
-                    type: 'recent',
-                    startDate: lastWeek.toISOString().split('T')[0],
-                    endDate: now.toISOString().split('T')[0],
-                    allDay: true
-                };
                 
             case 'custom':
                 const startDate = this.elements.startDate.value;
@@ -374,12 +366,11 @@ class PeopleCounterDashboard {
         const kamerotskiData = this.filteredData.filter(item => item.apparaat === 'Kamerotski');
         const henkData = this.filteredData.filter(item => item.apparaat === 'Henk');
         
-        const cutoffDate = new Date(CONFIG.DATA.CUTOFF_DATE);
         const camIn = this.filteredData
-            .filter(item => new Date(item.timestamp) > cutoffDate && item.apparaat === CONFIG.DEVICES.KAMEROTSKI)
+            .filter(item => item.apparaat === CONFIG.DEVICES.KAMEROTSKI)
             .reduce((sum, item) => sum + (item.delta || 0), 0);
         const camOut = this.filteredData
-            .filter(item => new Date(item.timestamp) > cutoffDate && item.apparaat === CONFIG.DEVICES.HENK)
+            .filter(item => item.apparaat === CONFIG.DEVICES.HENK)
             .reduce((sum, item) => sum + (item.delta || 0), 0);
         
         return {
@@ -698,16 +689,6 @@ class PeopleCounterDashboard {
         // Clear data
         this.data = [];
         this.filteredData = [];
-    }
-
-
-    showError(message, isTemporary = true) {
-        const container = document.querySelector('.container');
-        const errorDiv = document.createElement('div');
-        errorDiv.className = 'error';
-        errorDiv.textContent = message;
-        container.insertBefore(errorDiv, container.firstChild);
-        if (isTemporary) setTimeout(() => errorDiv.remove(), 5000);
     }
 }
 
