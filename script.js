@@ -1,7 +1,3 @@
-/**
- * People Counter Dashboard - Enhanced with performance optimizations
- * and improved architecture
- */
 class PeopleCounterDashboard {
     constructor() {
         this.data = [];
@@ -10,7 +6,6 @@ class PeopleCounterDashboard {
         this.debounceTimer = null;
         this.refreshInterval = null;
         
-        // Cache DOM elements
         this.elements = {};
         
         // API Configuration
@@ -26,21 +21,15 @@ class PeopleCounterDashboard {
         this.startAutoRefresh();
     }
 
-    /**
-     * Cache DOM elements and setup event listeners with debouncing
-     */
     setupEventListeners() {
-        // Cache DOM elements
         this.elements = {
             deviceFilter: document.getElementById('deviceFilter'),
-            timeRange: document.getElementById('timeRange'),
-            timeFilter: document.getElementById('timeFilter'),
+            timePeriod: document.getElementById('timePeriod'),
             startDate: document.getElementById('startDate'),
             endDate: document.getElementById('endDate'),
-            startHour: document.getElementById('startHour'),
-            endHour: document.getElementById('endHour'),
-            customDateRange: document.getElementById('customDateRange'),
-            customTimeRange: document.getElementById('customTimeRange'),
+            startTime: document.getElementById('startTime'),
+            endTime: document.getElementById('endTime'),
+            customRange: document.getElementById('customRange'),
             totalInside: document.getElementById('totalInside'),
             totalOutside: document.getElementById('totalOutside'),
             netMovement: document.getElementById('netMovement'),
@@ -51,24 +40,16 @@ class PeopleCounterDashboard {
 
         // Setup event listeners with debounced filtering
         this.elements.deviceFilter.addEventListener('change', () => this.debouncedFilterData());
-        this.elements.timeRange.addEventListener('change', () => {
-            this.toggleCustomDateRange();
-            this.linkFestivalPeriodToActiveHours();
-            this.debouncedFilterData();
-        });
-        this.elements.timeFilter.addEventListener('change', () => {
-            this.toggleCustomTimeRange();
+        this.elements.timePeriod.addEventListener('change', () => {
+            this.toggleCustomRange();
             this.debouncedFilterData();
         });
         this.elements.startDate.addEventListener('change', () => this.debouncedFilterData());
         this.elements.endDate.addEventListener('change', () => this.debouncedFilterData());
-        this.elements.startHour.addEventListener('change', () => this.debouncedFilterData());
-        this.elements.endHour.addEventListener('change', () => this.debouncedFilterData());
+        this.elements.startTime.addEventListener('change', () => this.debouncedFilterData());
+        this.elements.endTime.addEventListener('change', () => this.debouncedFilterData());
     }
 
-    /**
-     * Debounced version of filterData to prevent excessive calls
-     */
     debouncedFilterData() {
         if (this.debounceTimer) {
             clearTimeout(this.debounceTimer);
@@ -78,123 +59,17 @@ class PeopleCounterDashboard {
         }, CONFIG.UI.DEBOUNCE_DELAY);
     }
 
-    /**
-     * Toggle custom date range visibility
-     */
-    toggleCustomDateRange() {
-        const timeRange = this.elements.timeRange.value;
-        const customDateRange = this.elements.customDateRange;
+    toggleCustomRange() {
+        const timePeriod = this.elements.timePeriod.value;
+        const customRange = this.elements.customRange;
         
-        if (timeRange === CONFIG.FILTERS.TIME_RANGE.CUSTOM) {
-            customDateRange.style.display = 'flex';
-            customDateRange.style.gap = '10px';
-            customDateRange.style.alignItems = 'center';
+        if (timePeriod === 'custom') {
+            customRange.style.display = 'block';
         } else {
-            customDateRange.style.display = 'none';
+            customRange.style.display = 'none';
         }
     }
 
-    /**
-     * Toggle custom time range visibility
-     */
-    toggleCustomTimeRange() {
-        const timeFilter = this.elements.timeFilter.value;
-        const customTimeRange = this.elements.customTimeRange;
-        
-        if (timeFilter === CONFIG.FILTERS.TIME_FILTER.CUSTOM_HOURS) {
-            customTimeRange.style.display = 'flex';
-            customTimeRange.style.gap = '10px';
-            customTimeRange.style.alignItems = 'center';
-        } else {
-            customTimeRange.style.display = 'none';
-        }
-    }
-
-    /**
-     * Link festival period selection to appropriate active hours
-     */
-    linkFestivalPeriodToActiveHours() {
-        const timeRange = this.elements.timeRange.value;
-        const timeFilter = this.elements.timeFilter;
-        
-        // Update options based on selected period
-        this.updateActiveHoursOptions(timeRange);
-        
-        // Auto-select appropriate festival hours based on selected period
-        switch (timeRange) {
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_FRIDAY:
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_FRIDAY:
-                timeFilter.value = CONFIG.FILTERS.TIME_FILTER.FRIDAY_HOURS;
-                break;
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_SATURDAY:
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_SATURDAY:
-                timeFilter.value = CONFIG.FILTERS.TIME_FILTER.SATURDAY_HOURS;
-                break;
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_FULL:
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_FULL:
-                // For full festival, keep current selection or default to all hours
-                if (timeFilter.value === CONFIG.FILTERS.TIME_FILTER.FRIDAY_HOURS || 
-                    timeFilter.value === CONFIG.FILTERS.TIME_FILTER.SATURDAY_HOURS) {
-                    // Keep the current specific day selection
-                } else {
-                    timeFilter.value = CONFIG.FILTERS.TIME_FILTER.ALL_HOURS;
-                }
-                break;
-            default:
-                // For custom or all time, don't change time filter automatically
-                break;
-        }
-        
-        // Update the custom time range visibility
-        this.toggleCustomTimeRange();
-    }
-
-    /**
-     * Update active hours options based on selected festival period
-     */
-    updateActiveHoursOptions(timeRange) {
-        const timeFilter = this.elements.timeFilter;
-        const currentValue = timeFilter.value;
-        
-        // Clear existing options
-        timeFilter.innerHTML = '';
-        
-        // Add base option
-        timeFilter.appendChild(new Option('All Hours', CONFIG.FILTERS.TIME_FILTER.ALL_HOURS));
-        
-        // Add contextual options based on selected period
-        switch (timeRange) {
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_FRIDAY:
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_FRIDAY:
-                timeFilter.appendChild(new Option('Festival Hours (18:00-02:00) - Recommended', CONFIG.FILTERS.TIME_FILTER.FRIDAY_HOURS));
-                timeFilter.appendChild(new Option('Custom Time Range', CONFIG.FILTERS.TIME_FILTER.CUSTOM_HOURS));
-                break;
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_SATURDAY:
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_SATURDAY:
-                timeFilter.appendChild(new Option('Festival Hours (13:00-02:00) - Recommended', CONFIG.FILTERS.TIME_FILTER.SATURDAY_HOURS));
-                timeFilter.appendChild(new Option('Custom Time Range', CONFIG.FILTERS.TIME_FILTER.CUSTOM_HOURS));
-                break;
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_FULL:
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_FULL:
-                timeFilter.appendChild(new Option('Friday Hours (18:00-02:00)', CONFIG.FILTERS.TIME_FILTER.FRIDAY_HOURS));
-                timeFilter.appendChild(new Option('Saturday Hours (13:00-02:00)', CONFIG.FILTERS.TIME_FILTER.SATURDAY_HOURS));
-                timeFilter.appendChild(new Option('Custom Time Range', CONFIG.FILTERS.TIME_FILTER.CUSTOM_HOURS));
-                break;
-            default:
-                // For custom or all time, show all options
-                timeFilter.appendChild(new Option('Friday Festival Hours (18:00-02:00)', CONFIG.FILTERS.TIME_FILTER.FRIDAY_HOURS));
-                timeFilter.appendChild(new Option('Saturday Festival Hours (13:00-02:00)', CONFIG.FILTERS.TIME_FILTER.SATURDAY_HOURS));
-                timeFilter.appendChild(new Option('Custom Time Range', CONFIG.FILTERS.TIME_FILTER.CUSTOM_HOURS));
-                break;
-        }
-        
-        // Restore previous selection if still valid
-        const options = Array.from(timeFilter.options);
-        const validOption = options.find(option => option.value === currentValue);
-        if (validOption) {
-            timeFilter.value = currentValue;
-        }
-    }
 
     async fetchData() {
         try {
@@ -203,7 +78,6 @@ class PeopleCounterDashboard {
             
             const rawData = await response.json();
             
-            // Handle different data formats
             let processedData;
             if (Array.isArray(rawData)) {
                 processedData = rawData;
@@ -227,20 +101,15 @@ class PeopleCounterDashboard {
         }
     }
 
-    /**
-     * Main filtering method that orchestrates all filters
-     */
     filterData() {
         const deviceFilter = this.elements.deviceFilter.value;
-        const timeRange = this.elements.timeRange.value;
-        const timeFilter = this.elements.timeFilter.value;
+        const timePeriod = this.elements.timePeriod.value;
 
         let filtered = [...this.data];
 
         // Apply filters in sequence
         filtered = this._filterByDevice(filtered, deviceFilter);
-        filtered = this._filterByDateRange(filtered, timeRange);
-        filtered = this._filterByTimeOfDay(filtered, timeFilter);
+        filtered = this._filterByTimePeriod(filtered, timePeriod);
 
         // Sort by timestamp descending (newest first)
         this.filteredData = this._sortByTimestamp(filtered);
@@ -248,9 +117,6 @@ class PeopleCounterDashboard {
         this.renderDashboard();
     }
 
-    /**
-     * Filter data by device type
-     */
     _filterByDevice(data, deviceFilter) {
         if (deviceFilter === CONFIG.FILTERS.DEVICE.ALL) {
             return data;
@@ -258,67 +124,109 @@ class PeopleCounterDashboard {
         return data.filter(item => item.apparaat === deviceFilter);
     }
 
-    /**
-     * Filter data by date range
-     */
-    _filterByDateRange(data, timeRange) {
-        if (timeRange === CONFIG.FILTERS.TIME_RANGE.ALL) {
+    _filterByTimePeriod(data, timePeriod) {
+        if (timePeriod === 'all') {
             return data;
         }
 
-        const dateRange = this._getDateRange(timeRange);
-        if (!dateRange) {
+        const timeRange = this._getTimePeriodRange(timePeriod);
+        if (!timeRange) {
             return data;
         }
 
         return data.filter(item => {
             const itemDate = new Date(item.timestamp);
-            return itemDate >= dateRange.start && itemDate <= dateRange.end;
+            return this._isWithinTimeRange(itemDate, timeRange);
         });
     }
 
-    /**
-     * Get date range object based on filter selection
-     */
-    _getDateRange(timeRange) {
-        switch (timeRange) {
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_FULL:
+    _getTimePeriodRange(timePeriod) {
+        const now = new Date();
+        
+        switch (timePeriod) {
+            case '2024-friday-festival':
                 return {
-                    start: new Date(CONFIG.FESTIVAL_DATES[2024].FULL.start),
-                    end: new Date(CONFIG.FESTIVAL_DATES[2024].FULL.end)
+                    type: 'friday-festival',
+                    year: 2024,
+                    startDate: '2024-08-02',
+                    endDate: '2024-08-02', // Friday only
+                    festivalHours: 'friday'
                 };
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_FRIDAY:
+            case '2024-saturday-festival':
                 return {
-                    start: new Date(CONFIG.FESTIVAL_DATES[2024].FRIDAY.start),
-                    end: new Date(CONFIG.FESTIVAL_DATES[2024].FRIDAY.end)
+                    type: 'saturday-festival',
+                    year: 2024,
+                    startDate: '2024-08-03',
+                    endDate: '2024-08-03', // Saturday only
+                    festivalHours: 'saturday'
                 };
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2024_SATURDAY:
+            case '2024-full-festival':
                 return {
-                    start: new Date(CONFIG.FESTIVAL_DATES[2024].SATURDAY.start),
-                    end: new Date(CONFIG.FESTIVAL_DATES[2024].SATURDAY.end)
+                    type: 'full-festival',
+                    year: 2024,
+                    startDate: '2024-08-02',
+                    endDate: '2024-08-03',
+                    festivalHours: 'both'
                 };
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_FULL:
+                
+            case '2025-friday-festival':
                 return {
-                    start: new Date(CONFIG.FESTIVAL_DATES[2025].FULL.start),
-                    end: new Date(CONFIG.FESTIVAL_DATES[2025].FULL.end)
+                    type: 'friday-festival',
+                    year: 2025,
+                    startDate: '2025-08-01',
+                    endDate: '2025-08-01', // Friday only
+                    festivalHours: 'friday'
                 };
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_FRIDAY:
+            case '2025-saturday-festival':
                 return {
-                    start: new Date(CONFIG.FESTIVAL_DATES[2025].FRIDAY.start),
-                    end: new Date(CONFIG.FESTIVAL_DATES[2025].FRIDAY.end)
+                    type: 'saturday-festival', 
+                    year: 2025,
+                    startDate: '2025-08-02',
+                    endDate: '2025-08-02', // Saturday only
+                    festivalHours: 'saturday'
                 };
-            case CONFIG.FILTERS.TIME_RANGE.FESTIVAL_2025_SATURDAY:
+            case '2025-full-festival':
                 return {
-                    start: new Date(CONFIG.FESTIVAL_DATES[2025].SATURDAY.start),
-                    end: new Date(CONFIG.FESTIVAL_DATES[2025].SATURDAY.end)
+                    type: 'full-festival',
+                    year: 2025,
+                    startDate: '2025-08-01',
+                    endDate: '2025-08-02',
+                    festivalHours: 'both'
                 };
-            case CONFIG.FILTERS.TIME_RANGE.CUSTOM:
-                const startInput = this.elements.startDate.value;
-                const endInput = this.elements.endDate.value;
-                if (startInput && endInput) {
+                
+            case 'last-24h':
+                const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                return {
+                    type: 'recent',
+                    startDate: yesterday.toISOString().split('T')[0],
+                    endDate: now.toISOString().split('T')[0],
+                    allDay: true
+                };
+            case 'last-week':
+                const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                return {
+                    type: 'recent',
+                    startDate: lastWeek.toISOString().split('T')[0],
+                    endDate: now.toISOString().split('T')[0],
+                    allDay: true
+                };
+                
+            case 'custom':
+                const startDate = this.elements.startDate.value;
+                const endDate = this.elements.endDate.value;
+                const startTime = this.elements.startTime.value;
+                const endTime = this.elements.endTime.value;
+                
+                if (startDate && endDate) {
+                    const hasTimeRange = startTime && endTime && (startTime !== '00:00' || endTime !== '23:59');
                     return {
-                        start: new Date(startInput + 'T00:00:00'),
-                        end: new Date(endInput + 'T23:59:59')
+                        type: 'custom',
+                        startDate: startDate,
+                        endDate: endDate,
+                        timeStart: hasTimeRange ? startTime : null,
+                        timeEnd: hasTimeRange ? endTime : null,
+                        allDay: !hasTimeRange,
+                        custom: true
                     };
                 }
                 break;
@@ -326,76 +234,117 @@ class PeopleCounterDashboard {
         return null;
     }
 
-    /**
-     * Filter data by time of day
-     */
-    _filterByTimeOfDay(data, timeFilter) {
-        if (timeFilter === CONFIG.FILTERS.TIME_FILTER.ALL_HOURS) {
-            return data;
-        }
-
-        return data.filter(item => {
-            const itemDate = new Date(item.timestamp);
-            const hour = itemDate.getHours();
-            
-            switch (timeFilter) {
-                case CONFIG.FILTERS.TIME_FILTER.FRIDAY_HOURS:
-                    return this._isWithinFestivalHours(hour, CONFIG.FESTIVAL_HOURS.FRIDAY);
-                case CONFIG.FILTERS.TIME_FILTER.SATURDAY_HOURS:
-                    return this._isWithinFestivalHours(hour, CONFIG.FESTIVAL_HOURS.SATURDAY);
-                case CONFIG.FILTERS.TIME_FILTER.CUSTOM_HOURS:
-                    return this._isWithinCustomHours(itemDate);
-                default:
-                    return true;
+    _isWithinTimeRange(itemDate, timeRange) {
+        const itemDateStr = itemDate.toISOString().split('T')[0];
+        const itemHour = itemDate.getHours();
+        const itemMinute = itemDate.getMinutes();
+        
+        // Check basic date range first
+        if (itemDateStr < timeRange.startDate || itemDateStr > timeRange.endDate) {
+            // Special case: for overnight festival hours, we need to check the next day for early morning hours
+            if (timeRange.festivalHours && itemHour < 6) { // Early morning hours (00:00-06:00)
+                const prevDay = new Date(itemDate.getTime() - 24 * 60 * 60 * 1000);
+                const prevDateStr = prevDay.toISOString().split('T')[0];
+                if (prevDateStr < timeRange.startDate || prevDateStr > timeRange.endDate) {
+                    return false;
+                }
+            } else {
+                return false;
             }
-        });
-    }
-
-    /**
-     * Check if hour is within festival hours (handles overnight ranges)
-     */
-    _isWithinFestivalHours(hour, festivalHours) {
-        const { start, end } = festivalHours;
-        if (start <= end) {
-            return hour >= start && hour < end;
-        } else {
-            // Handle overnight ranges (e.g., 18:00 to 02:00)
-            return hour >= start || hour < end;
         }
-    }
-
-    /**
-     * Check if time is within custom time range
-     */
-    _isWithinCustomHours(itemDate) {
-        const startHour = this.elements.startHour.value;
-        const endHour = this.elements.endHour.value;
         
-        if (!startHour || !endHour) return true;
-        
-        const startTime = this._parseTimeToDecimal(startHour);
-        const endTime = this._parseTimeToDecimal(endHour);
-        const itemTime = itemDate.getHours() + itemDate.getMinutes() / 60;
-        
-        if (startTime <= endTime) {
-            return itemTime >= startTime && itemTime < endTime;
-        } else {
-            // Handle overnight ranges
-            return itemTime >= startTime || itemTime < endTime;
+        // All day filter
+        if (timeRange.allDay) {
+            return true;
         }
+        
+        // Festival hours logic
+        if (timeRange.festivalHours) {
+            return this._isWithinFestivalHours(itemDate, timeRange);
+        }
+        
+        // Custom time range
+        if (timeRange.timeStart && timeRange.timeEnd) {
+            const startTime = this._parseTimeToDecimal(timeRange.timeStart);
+            const endTime = this._parseTimeToDecimal(timeRange.timeEnd);
+            
+            if (timeRange.custom && startTime > endTime) {
+                // Handle overnight custom ranges
+                const itemTime = itemHour + itemMinute / 60;
+                return itemTime >= startTime || itemTime <= endTime;
+            } else {
+                const itemTime = itemHour + itemMinute / 60;
+                return itemTime >= startTime && itemTime <= endTime;
+            }
+        }
+        
+        return true;
     }
 
-    /**
-     * Convert time string (HH:MM) to decimal hours
-     */
+    _isWithinFestivalHours(itemDate, timeRange) {
+        const itemHour = itemDate.getHours();
+        const itemDateStr = itemDate.toISOString().split('T')[0];
+        
+        // Determine which day this is relative to festival dates
+        const isFridayDate = (timeRange.year === 2024 && itemDateStr === '2024-08-02') ||
+                           (timeRange.year === 2025 && itemDateStr === '2025-08-01');
+        const isSaturdayDate = (timeRange.year === 2024 && itemDateStr === '2024-08-03') ||
+                             (timeRange.year === 2025 && itemDateStr === '2025-08-02');
+        
+        // Handle early morning hours (00:00-06:00) - these belong to the previous day's festival
+        const isEarlyMorning = itemHour >= 0 && itemHour < 6;
+        
+        switch (timeRange.festivalHours) {
+            case 'friday':
+                if (isFridayDate) {
+                    // Friday 18:00-23:59
+                    return itemHour >= 18;
+                }
+                if (isSaturdayDate && isEarlyMorning) {
+                    // Saturday 00:00-02:00 (continuation of Friday festival)
+                    return itemHour < 2;
+                }
+                return false;
+                
+            case 'saturday':
+                if (isSaturdayDate) {
+                    // Saturday 13:00-23:59
+                    return itemHour >= 13;
+                }
+                if (timeRange.year === 2024 && itemDateStr === '2024-08-04' && isEarlyMorning) {
+                    // Sunday 00:00-02:00 (continuation of Saturday festival)
+                    return itemHour < 2;
+                }
+                if (timeRange.year === 2025 && itemDateStr === '2025-08-03' && isEarlyMorning) {
+                    // Sunday 00:00-02:00 (continuation of Saturday festival)
+                    return itemHour < 2;
+                }
+                return false;
+                
+            case 'both':
+                // Friday festival hours
+                if (isFridayDate && itemHour >= 18) return true;
+                if (isSaturdayDate && itemHour < 2) return true; // Early morning continuation
+                
+                // Saturday festival hours  
+                if (isSaturdayDate && itemHour >= 13) return true;
+                
+                // Sunday early morning (continuation of Saturday)
+                if (timeRange.year === 2024 && itemDateStr === '2024-08-04' && itemHour < 2) return true;
+                if (timeRange.year === 2025 && itemDateStr === '2025-08-03' && itemHour < 2) return true;
+                
+                return false;
+        }
+        
+        return false;
+    }
+
+
     _parseTimeToDecimal(timeString) {
         const [hours, minutes] = timeString.split(':').map(Number);
         return hours + minutes / 60;
     }
 
-    /**
-     * Sort data by timestamp
-     */
     _sortByTimestamp(data) {
         return data.sort((a, b) => {
             const dateA = new Date(a.timestamp);
@@ -410,9 +359,6 @@ class PeopleCounterDashboard {
         this.renderTable();
     }
 
-    /**
-     * Update statistics display using cached DOM elements
-     */
     updateStats() {
         const stats = this.calculateStats();
         
@@ -420,6 +366,7 @@ class PeopleCounterDashboard {
         this.elements.totalOutside.textContent = stats.totalOutside.toLocaleString();
         this.elements.netMovement.textContent = stats.netMovement.toLocaleString();
         this.elements.activeDevices.textContent = stats.activeDevices;
+        
     }
 
     calculateStats() {
@@ -427,26 +374,20 @@ class PeopleCounterDashboard {
         const kamerotskiData = this.filteredData.filter(item => item.apparaat === 'Kamerotski');
         const henkData = this.filteredData.filter(item => item.apparaat === 'Henk');
         
-        // Sum deltas for each device (after cutoff date)
-        const filteredAfter = this.filteredData.filter(item => 
-            new Date(item.timestamp) > new Date(CONFIG.DATA.CUTOFF_DATE)
-        );
-        
-        const camIn = filteredAfter
-            .filter(item => item.apparaat === CONFIG.DEVICES.KAMEROTSKI)
+        const cutoffDate = new Date(CONFIG.DATA.CUTOFF_DATE);
+        const camIn = this.filteredData
+            .filter(item => new Date(item.timestamp) > cutoffDate && item.apparaat === CONFIG.DEVICES.KAMEROTSKI)
             .reduce((sum, item) => sum + (item.delta || 0), 0);
-            
-        const camOut = filteredAfter
-            .filter(item => item.apparaat === CONFIG.DEVICES.HENK)
+        const camOut = this.filteredData
+            .filter(item => new Date(item.timestamp) > cutoffDate && item.apparaat === CONFIG.DEVICES.HENK)
             .reduce((sum, item) => sum + (item.delta || 0), 0);
         
-        // Apply the same logic as the backend
-        const totalInside = camIn;
-        const totalOutside = camOut;
-        const netMovement = (camIn - camOut);
-        const activeDevices = new Set(this.filteredData.map(item => item.apparaat)).size;
-
-        return { totalInside, totalOutside, netMovement, activeDevices };
+        return {
+            totalInside: camIn,
+            totalOutside: camOut,
+            netMovement: camIn - camOut,
+            activeDevices: new Set(this.filteredData.map(item => item.apparaat)).size
+        };
     }
 
     getLatestByDevice() {
@@ -469,9 +410,6 @@ class PeopleCounterDashboard {
         this.renderDeltaChart();
     }
 
-    /**
-     * Render timeline chart with optimized updates
-     */
     renderTimelineChart() {
         const ctx = document.getElementById('timelineChart').getContext('2d');
         const timeData = this.prepareTimelineData();
@@ -516,9 +454,6 @@ class PeopleCounterDashboard {
         }
     }
 
-    /**
-     * Render distribution chart with optimized updates
-     */
     renderDistributionChart() {
         const ctx = document.getElementById('distributionChart').getContext('2d');
         const stats = this.calculateStats();
@@ -553,9 +488,6 @@ class PeopleCounterDashboard {
         }
     }
 
-    /**
-     * Render device chart with optimized updates
-     */
     renderDeviceChart() {
         const ctx = document.getElementById('deviceChart').getContext('2d');
         const deviceData = this.prepareDeviceData();
@@ -590,9 +522,6 @@ class PeopleCounterDashboard {
         }
     }
 
-    /**
-     * Render delta chart with optimized updates
-     */
     renderDeltaChart() {
         const ctx = document.getElementById('deltaChart').getContext('2d');
         const deltaData = this.prepareDeltaData();
@@ -626,39 +555,22 @@ class PeopleCounterDashboard {
 
     prepareTimelineData() {
         const grouped = {};
-        
-        // Sort filtered data by timestamp first
-        const sortedData = [...this.filteredData].sort((a, b) => 
-            new Date(a.timestamp) - new Date(b.timestamp)
-        );
+        const sortedData = [...this.filteredData].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         
         sortedData.forEach(item => {
             const date = new Date(item.timestamp);
-            
-            // Create a unique key that includes both date and hour for proper grouping
             const dateKey = date.toLocaleDateString('en-GB', {
-                timeZone: CONFIG.DATA.TIMEZONE,
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
+                timeZone: CONFIG.DATA.TIMEZONE, year: 'numeric', month: '2-digit', day: '2-digit'
             });
             const hour = date.getHours();
             const minute = Math.floor(date.getMinutes() / CONFIG.UI.TIME_INTERVAL_MINUTES) * CONFIG.UI.TIME_INTERVAL_MINUTES;
-            
-            const timeKey = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
-            const fullKey = `${dateKey} ${timeKey}`;
+            const fullKey = `${dateKey} ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
             
             if (!grouped[fullKey]) {
                 grouped[fullKey] = { 
-                    inside: 0, 
-                    outside: 0, 
-                    count: 0, 
-                    timestamp: date.getTime(),
+                    inside: 0, outside: 0, count: 0, timestamp: date.getTime(),
                     displayLabel: date.toLocaleString('en-GB', {
-                        timeZone: CONFIG.DATA.TIMEZONE,
-                        weekday: 'short',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        timeZone: CONFIG.DATA.TIMEZONE, weekday: 'short', hour: '2-digit', minute: '2-digit'
                     })
                 };
             }
@@ -668,54 +580,39 @@ class PeopleCounterDashboard {
             grouped[fullKey].count++;
         });
 
-        // Sort by actual timestamp
-        const sortedEntries = Object.entries(grouped).sort((a, b) => 
-            a[1].timestamp - b[1].timestamp
-        );
-
-        // Take recent data points based on configuration
-        const recentEntries = sortedEntries.slice(-CONFIG.UI.TIMELINE_DATA_POINTS);
+        const recentEntries = Object.entries(grouped)
+            .sort((a, b) => a[1].timestamp - b[1].timestamp)
+            .slice(-CONFIG.UI.TIMELINE_DATA_POINTS);
         
-        const labels = recentEntries.map(([key, data]) => data.displayLabel);
-        const inside = recentEntries.map(([key, data]) => 
-            data.count > 0 ? Math.round(data.inside / data.count) : 0
-        );
-        const outside = recentEntries.map(([key, data]) => 
-            data.count > 0 ? Math.round(data.outside / data.count) : 0
-        );
-
-        return { labels, inside, outside };
+        return {
+            labels: recentEntries.map(([, data]) => data.displayLabel),
+            inside: recentEntries.map(([, data]) => data.count > 0 ? Math.round(data.inside / data.count) : 0),
+            outside: recentEntries.map(([, data]) => data.count > 0 ? Math.round(data.outside / data.count) : 0)
+        };
     }
 
     prepareDeviceData() {
         const latest = this.getLatestByDevice();
-        
         const labels = Object.keys(latest);
-        const inside = labels.map(device => latest[device].binnen || 0);
-        const outside = labels.map(device => latest[device].buiten || 0);
-
-        return { labels, inside, outside };
+        return {
+            labels,
+            inside: labels.map(device => latest[device].binnen || 0),
+            outside: labels.map(device => latest[device].buiten || 0)
+        };
     }
 
     prepareDeltaData() {
-        const recentData = this.filteredData.slice(0, 20);
-        
-        const labels = recentData.map(item => 
-            `${new Date(item.timestamp).toLocaleString('en-GB', {
-                timeZone: CONFIG.DATA.TIMEZONE,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            })}`
-        );
-        const values = recentData.map(item => item.delta);
-
-        return { labels, values };
+        const recentData = this.filteredData.slice(0, CONFIG.UI.TABLE_MAX_ROWS);
+        return {
+            labels: recentData.map(item => 
+                new Date(item.timestamp).toLocaleString('en-GB', {
+                    timeZone: CONFIG.DATA.TIMEZONE, weekday: 'short', hour: '2-digit', minute: '2-digit'
+                })
+            ),
+            values: recentData.map(item => item.delta)
+        };
     }
 
-    /**
-     * Render activity table with cached elements
-     */
     renderTable() {
         const tbody = this.elements.activityTableBody;
         tbody.innerHTML = '';
@@ -726,16 +623,10 @@ class PeopleCounterDashboard {
             const row = document.createElement('tr');
             const date = new Date(item.timestamp);
             const dateStr = date.toLocaleDateString('en-GB', {
-                timeZone: CONFIG.DATA.TIMEZONE,
-                weekday: 'short',
-                day: 'numeric',
-                month: 'short'
+                timeZone: CONFIG.DATA.TIMEZONE, weekday: 'short', day: 'numeric', month: 'short'
             });
             const timeStr = date.toLocaleTimeString('en-GB', {
-                timeZone: CONFIG.DATA.TIMEZONE,
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
+                timeZone: CONFIG.DATA.TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit'
             });
             
             row.innerHTML = `
@@ -756,17 +647,10 @@ class PeopleCounterDashboard {
     updateLastUpdated() {
         const now = new Date();
         const dateStr = now.toLocaleDateString('en-GB', {
-            timeZone: CONFIG.DATA.TIMEZONE,
-            weekday: 'short',
-            day: 'numeric',
-            month: 'short',
-            year: 'numeric'
+            timeZone: CONFIG.DATA.TIMEZONE, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
         });
         const timeStr = now.toLocaleTimeString('en-GB', {
-            timeZone: CONFIG.DATA.TIMEZONE,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
+            timeZone: CONFIG.DATA.TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
         this.elements.lastUpdated.textContent = `${dateStr} at ${timeStr}`;
     }
@@ -779,9 +663,6 @@ class PeopleCounterDashboard {
         container.insertBefore(errorDiv, container.firstChild);
     }
 
-    /**
-     * Start auto-refresh with proper cleanup
-     */
     startAutoRefresh() {
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
@@ -794,9 +675,6 @@ class PeopleCounterDashboard {
         }, CONFIG.API.REFRESH_INTERVAL);
     }
 
-    /**
-     * Clean up resources and event listeners
-     */
     destroy() {
         // Clear intervals
         if (this.refreshInterval) {
@@ -822,59 +700,14 @@ class PeopleCounterDashboard {
         this.filteredData = [];
     }
 
-    /**
-     * Enhanced error display with better UX
-     */
+
     showError(message, isTemporary = true) {
-        // Remove existing error messages
-        const existingErrors = document.querySelectorAll('.error-message');
-        existingErrors.forEach(error => error.remove());
-        
         const container = document.querySelector('.container');
         const errorDiv = document.createElement('div');
-        errorDiv.className = 'error-message';
-        errorDiv.style.cssText = `
-            background: rgba(229, 62, 62, 0.1);
-            color: ${CONFIG.UI.COLORS.PRIMARY};
-            padding: 15px 20px;
-            border-radius: 6px;
-            border: 1px solid ${CONFIG.UI.COLORS.ERROR};
-            margin: 20px 0;
-            text-align: center;
-            font-weight: 500;
-            animation: slideIn 0.3s ease-out;
-        `;
-        
-        // Add close button for persistent errors
-        if (!isTemporary) {
-            const closeBtn = document.createElement('button');
-            closeBtn.innerHTML = '×';
-            closeBtn.style.cssText = `
-                float: right;
-                background: none;
-                border: none;
-                color: ${CONFIG.UI.COLORS.PRIMARY};
-                font-size: 20px;
-                cursor: pointer;
-                padding: 0;
-                margin-left: 10px;
-            `;
-            closeBtn.onclick = () => errorDiv.remove();
-            errorDiv.appendChild(closeBtn);
-        }
-        
-        errorDiv.appendChild(document.createTextNode(message));
+        errorDiv.className = 'error';
+        errorDiv.textContent = message;
         container.insertBefore(errorDiv, container.firstChild);
-        
-        // Auto-remove temporary errors
-        if (isTemporary) {
-            setTimeout(() => {
-                if (errorDiv.parentNode) {
-                    errorDiv.style.animation = 'slideOut 0.3s ease-in';
-                    setTimeout(() => errorDiv.remove(), 300);
-                }
-            }, 5000);
-        }
+        if (isTemporary) setTimeout(() => errorDiv.remove(), 5000);
     }
 }
 
@@ -883,6 +716,7 @@ let dashboardInstance = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     dashboardInstance = new PeopleCounterDashboard();
+    
 });
 
 // Clean up resources on page unload
@@ -892,29 +726,3 @@ window.addEventListener('beforeunload', () => {
     }
 });
 
-// Add CSS animations for error messages
-const style = document.createElement('style');
-style.textContent = `
-    @keyframes slideIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    @keyframes slideOut {
-        from {
-            opacity: 1;
-            transform: translateY(0);
-        }
-        to {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-    }
-`;
-document.head.appendChild(style);
