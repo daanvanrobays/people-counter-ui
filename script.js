@@ -29,7 +29,18 @@ class PeopleCounterDashboard {
             const response = await fetch(this.apiUrl);
             if (!response.ok) throw new Error('Failed to fetch data');
             
-            this.data = await response.json();
+            const rawData = await response.json();
+            
+            // Handle different data formats
+            if (Array.isArray(rawData)) {
+                this.data = rawData;
+            } else if (rawData && typeof rawData === 'object') {
+                // If data is grouped by device, flatten it
+                this.data = Object.values(rawData).flat();
+            } else {
+                throw new Error('Invalid data format received');
+            }
+            
             this.filterData();
             this.updateLastUpdated();
         } catch (error) {
@@ -94,8 +105,8 @@ class PeopleCounterDashboard {
     calculateStats() {
         const latest = this.getLatestByDevice();
         
-        const totalInside = Object.values(latest).reduce((sum, item) => sum + item.binnen, 0);
-        const totalOutside = Object.values(latest).reduce((sum, item) => sum + item.buiten, 0);
+        const totalInside = Object.values(latest).reduce((sum, item) => sum + (item.binnen || 0), 0);
+        const totalOutside = Object.values(latest).reduce((sum, item) => sum + (item.buiten || 0), 0);
         const netMovement = totalInside - totalOutside;
         const activeDevices = Object.keys(latest).length;
 
@@ -272,8 +283,8 @@ class PeopleCounterDashboard {
                 grouped[hour] = { inside: 0, outside: 0, count: 0 };
             }
             
-            grouped[hour].inside += item.binnen;
-            grouped[hour].outside += item.buiten;
+            grouped[hour].inside += (item.binnen || 0);
+            grouped[hour].outside += (item.buiten || 0);
             grouped[hour].count++;
         });
 
@@ -288,8 +299,8 @@ class PeopleCounterDashboard {
         const latest = this.getLatestByDevice();
         
         const labels = Object.keys(latest);
-        const inside = labels.map(device => latest[device].binnen);
-        const outside = labels.map(device => latest[device].buiten);
+        const inside = labels.map(device => latest[device].binnen || 0);
+        const outside = labels.map(device => latest[device].buiten || 0);
 
         return { labels, inside, outside };
     }
@@ -316,10 +327,10 @@ class PeopleCounterDashboard {
             row.innerHTML = `
                 <td>${item.apparaat}</td>
                 <td>${new Date(item.timestamp).toLocaleString()}</td>
-                <td>${item.binnen.toLocaleString()}</td>
-                <td>${item.buiten.toLocaleString()}</td>
+                <td>${(item.binnen || 0).toLocaleString()}</td>
+                <td>${(item.buiten || 0).toLocaleString()}</td>
                 <td class="${item.delta >= 0 ? 'positive' : 'negative'}">${item.delta}</td>
-                <td>${item.totaal.toLocaleString()}</td>
+                <td>${(item.totaal || 0).toLocaleString()}</td>
             `;
             tbody.appendChild(row);
         });
