@@ -5,11 +5,13 @@ class PeopleCounterDashboard {
         this.charts = {};
         this.debounceTimer = null;
         this.refreshInterval = null;
+        this.staleCheckInterval = null;
+        this.lastUpdateTime = null;
         
         this.elements = {};
         
         // API Configuration
-        this.apiUrl = CONFIG.API.CORS_PROXY + CONFIG.API.ENDPOINT;
+        this.apiUrl = CONFIG.API.ENDPOINT;
         
         this.init();
     }
@@ -35,7 +37,8 @@ class PeopleCounterDashboard {
             netMovement: document.getElementById('netMovement'),
             activeDevices: document.getElementById('activeDevices'),
             lastUpdated: document.getElementById('lastUpdated'),
-            activityTableBody: document.getElementById('activityTableBody')
+            activityTableBody: document.getElementById('activityTableBody'),
+            testStaleButton: document.getElementById('testStaleButton')
         };
 
         // Setup event listeners with debounced filtering
@@ -48,6 +51,7 @@ class PeopleCounterDashboard {
         this.elements.endDate.addEventListener('change', () => this.debouncedFilterData());
         this.elements.startTime.addEventListener('change', () => this.debouncedFilterData());
         this.elements.endTime.addEventListener('change', () => this.debouncedFilterData());
+        this.elements.testStaleButton.addEventListener('click', () => this.testStaleData());
     }
 
     debouncedFilterData() {
@@ -644,6 +648,7 @@ class PeopleCounterDashboard {
 
     updateLastUpdated() {
         const now = new Date();
+        this.lastUpdateTime = now;
         const dateStr = now.toLocaleDateString('en-GB', {
             timeZone: CONFIG.DATA.TIMEZONE, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
         });
@@ -651,6 +656,7 @@ class PeopleCounterDashboard {
             timeZone: CONFIG.DATA.TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit'
         });
         this.elements.lastUpdated.textContent = `${dateStr} at ${timeStr}`;
+        this.clearStaleDataAlert();
     }
 
     showError(message) {
@@ -659,6 +665,90 @@ class PeopleCounterDashboard {
         errorDiv.className = 'error';
         errorDiv.textContent = message;
         container.insertBefore(errorDiv, container.firstChild);
+    }
+
+    startStaleDataCheck() {
+        if (this.staleCheckInterval) {
+            clearInterval(this.staleCheckInterval);
+        }
+        
+        this.staleCheckInterval = setInterval(() => {
+            this.checkForStaleData();
+        }, 30000); // Check every 30 seconds
+    }
+
+    checkForStaleData() {
+        if (!this.lastUpdateTime) return;
+        
+        const now = new Date();
+        const timeDifference = now - this.lastUpdateTime;
+        const twoMinutesInMs = 2 * 60 * 1000;
+        
+        if (timeDifference > twoMinutesInMs) {
+            this.showStaleDataAlert();
+        }
+    }
+
+    showStaleDataAlert() {
+        // Don't show multiple alerts
+        if (document.querySelector('.stale-data-alert')) return;
+        
+        const container = document.querySelector('.container');
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'stale-data-alert';
+        alertDiv.style.cssText = `
+            background-color: #e53e3e;
+            color: white;
+            padding: 12px 20px;
+            margin: 10px 0;
+            border-radius: 4px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        `;
+        
+        const now = new Date();
+        const minutesAgo = Math.floor((now - this.lastUpdateTime) / 60000);
+        
+        alertDiv.innerHTML = `
+            <span>⚠️ Data may be stale - Last updated ${minutesAgo} minutes ago</span>
+            <button onclick="this.parentElement.remove()" style="
+                background: none;
+                border: none;
+                color: white;
+                font-size: 18px;
+                cursor: pointer;
+                padding: 0 5px;
+            ">×</button>
+        `;
+        
+        container.insertBefore(alertDiv, container.firstChild);
+    }
+
+    clearStaleDataAlert() {
+        const existingAlert = document.querySelector('.stale-data-alert');
+        if (existingAlert) {
+            existingAlert.remove();
+        }
+    }
+
+    testStaleData() {
+        // Set lastUpdateTime to 3 minutes ago to simulate stale data
+        const threeMinutesAgo = new Date(Date.now() - 3 * 60 * 1000);
+        this.lastUpdateTime = threeMinutesAgo;
+        
+        // Update the display to show the simulated time
+        const dateStr = threeMinutesAgo.toLocaleDateString('en-GB', {
+            timeZone: CONFIG.DATA.TIMEZONE, weekday: 'short', day: 'numeric', month: 'short', year: 'numeric'
+        });
+        const timeStr = threeMinutesAgo.toLocaleTimeString('en-GB', {
+            timeZone: CONFIG.DATA.TIMEZONE, hour: '2-digit', minute: '2-digit', second: '2-digit'
+        });
+        this.elements.lastUpdated.textContent = `${dateStr} at ${timeStr}`;
+        
+        // Trigger immediate stale check
+        this.checkForStaleData();
     }
 
     startAutoRefresh() {
@@ -671,6 +761,8 @@ class PeopleCounterDashboard {
                 this.showError('Failed to refresh data automatically.');
             });
         }, CONFIG.API.REFRESH_INTERVAL);
+        
+        this.startStaleDataCheck();
     }
 
     destroy() {
@@ -678,6 +770,11 @@ class PeopleCounterDashboard {
         if (this.refreshInterval) {
             clearInterval(this.refreshInterval);
             this.refreshInterval = null;
+        }
+        
+        if (this.staleCheckInterval) {
+            clearInterval(this.staleCheckInterval);
+            this.staleCheckInterval = null;
         }
         
         if (this.debounceTimer) {

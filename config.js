@@ -4,9 +4,8 @@
 const CONFIG = {
     // API Configuration
     API: {
-        ENDPOINT: atob('aHR0cHM6Ly9hZmYucmV5dGVjaC5iZS9ncm91cGVk'),
-        CORS_PROXY: 'https://corsproxy.io/?',
-        REFRESH_INTERVAL: 30000, // 30 seconds
+        ENDPOINT: 'https://aff.SERVER.be/grouped',
+        REFRESH_INTERVAL: 5000, // 5 seconds
         REQUEST_TIMEOUT: 10000   // 10 seconds
     },
 
