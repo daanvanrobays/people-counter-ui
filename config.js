@@ -69,8 +69,8 @@ const CONFIG = {
         DEBOUNCE_DELAY: 300,              // milliseconds
         CHART_MAX_HEIGHT: 300,            // pixels
         TABLE_MAX_ROWS: 50,               // rows
-        TIMELINE_DATA_POINTS: 48,         // 24 hours of 30-min intervals
-        TIME_INTERVAL_MINUTES: 30,        // Chart grouping interval
+        TIMELINE_DATA_POINTS: 288,         // 24 hours of 30-min intervals
+        TIME_INTERVAL_MINUTES: 5,        // Chart grouping interval
         COLORS: {
             PRIMARY: '#f3b323',           // AFF orange
             SECONDARY: '#eee7d7',         // Light text
