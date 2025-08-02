@@ -5,8 +5,8 @@ const CONFIG = {
     // API Configuration
     API: {
         ENDPOINT: 'https://aff.SERVER.be/grouped',
-        REFRESH_INTERVAL: 5000, // 5 seconds
-        REQUEST_TIMEOUT: 10000   // 10 seconds
+        REFRESH_INTERVAL: 15000, // 30 seconds
+        REQUEST_TIMEOUT: 10000   // 30 seconds
     },
 
     // Device Configuration

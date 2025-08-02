@@ -405,6 +405,22 @@ class PeopleCounterDashboard {
         return latest;
     }
 
+    getLatestDataTimestamp() {
+        if (!this.data || this.data.length === 0) return null;
+        
+        // Find the most recent timestamp across all data
+        let latestTimestamp = new Date(this.data[0].timestamp);
+        
+        this.data.forEach(item => {
+            const itemTimestamp = new Date(item.timestamp);
+            if (itemTimestamp > latestTimestamp) {
+                latestTimestamp = itemTimestamp;
+            }
+        });
+        
+        return latestTimestamp;
+    }
+
     renderCharts() {
         this.renderTimelineChart();
         this.renderDistributionChart();
@@ -678,18 +694,19 @@ class PeopleCounterDashboard {
     }
 
     checkForStaleData() {
-        if (!this.lastUpdateTime) return;
+        const latestDataTimestamp = this.getLatestDataTimestamp();
+        if (!latestDataTimestamp) return;
         
         const now = new Date();
-        const timeDifference = now - this.lastUpdateTime;
+        const timeDifference = now - latestDataTimestamp;
         const twoMinutesInMs = 2 * 60 * 1000;
         
         if (timeDifference > twoMinutesInMs) {
-            this.showStaleDataAlert();
+            this.showStaleDataAlert(latestDataTimestamp);
         }
     }
 
-    showStaleDataAlert() {
+    showStaleDataAlert(latestDataTimestamp) {
         // Don't show multiple alerts
         if (document.querySelector('.stale-data-alert')) return;
         
@@ -709,10 +726,11 @@ class PeopleCounterDashboard {
         `;
         
         const now = new Date();
-        const minutesAgo = Math.floor((now - this.lastUpdateTime) / 60000);
+        const dataTimestamp = latestDataTimestamp || this.getLatestDataTimestamp();
+        const minutesAgo = Math.floor((now - dataTimestamp) / 60000);
         
         alertDiv.innerHTML = `
-            <span>⚠️ Data may be stale - Last updated ${minutesAgo} minutes ago</span>
+            <span>⚠️ Data may be stale - Latest data from ${minutesAgo} minutes ago</span>
             <button onclick="this.parentElement.remove()" style="
                 background: none;
                 border: none;
