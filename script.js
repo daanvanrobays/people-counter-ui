@@ -202,6 +202,15 @@ class PeopleCounterDashboard {
                     endDate: now.toISOString().split('T')[0],
                     allDay: true
                 };
+
+            case 'last-1h':
+                const hourAgo = new Date(now.getTime() - 1 * 60 * 60 * 1000);
+                return {
+                    type: 'recent',
+                    startDate: hourAgo.toISOString().split('T')[0],
+                    endDate: now.toISOString().split('T')[0],
+                    allDay: true
+                };
                 
             case 'custom':
                 const startDate = this.elements.startDate.value;
@@ -363,9 +372,7 @@ class PeopleCounterDashboard {
 
     calculateStats() {
         // Calculate totals based on device logic: Kamerotski = IN, Henk = OUT
-        const kamerotskiData = this.filteredData.filter(item => item.apparaat === 'Kamerotski');
-        const henkData = this.filteredData.filter(item => item.apparaat === 'Henk');
-        
+
         const camIn = this.filteredData
             .filter(item => item.apparaat === CONFIG.DEVICES.KAMEROTSKI)
             .reduce((sum, item) => sum + (item.delta || 0), 0);
@@ -376,7 +383,7 @@ class PeopleCounterDashboard {
         return {
             totalInside: camIn,
             totalOutside: camOut,
-            netMovement: camIn - camOut,
+            netMovement: camIn + camOut,
             activeDevices: new Set(this.filteredData.map(item => item.apparaat)).size
         };
     }
